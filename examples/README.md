@@ -6,3 +6,9 @@ build the valve and copy the jar in the ${catalina.base}/lib directory.
 build the webapp and copy the war in the ${catalina.base}/webapps directory.
 
 the trace output is going in the catalina.out and in the header vault.param
+
+# HOW TO TEST
+simply run `mvn test` in the directory that contains pom.xml file
+
+
+
