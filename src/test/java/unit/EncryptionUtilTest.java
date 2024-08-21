@@ -15,7 +15,7 @@ public class EncryptionUtilTest {
 
     private final String encryptionAlgorithm = "AES";
     private final int keySize = 128;
-    private EncryptionUtil eutil = new EncryptionUtil(encryptionAlgorithm, keySize);
+    private final EncryptionUtil encryptionUtil = new EncryptionUtil(encryptionAlgorithm, keySize);
 
     @Test
     public void testValidEncryption() throws Exception {
@@ -25,7 +25,7 @@ public class EncryptionUtilTest {
         SecretKey key = KeyGenerator.getInstance(encryptionAlgorithm).generateKey();
 
         
-        byte[] encryptedData = eutil.encrypt(inputData, key);
+        byte[] encryptedData = encryptionUtil.encrypt(inputData, key);
 
         
         assertNotNull(encryptedData);
@@ -39,9 +39,7 @@ public class EncryptionUtilTest {
         SecretKey key = KeyGenerator.getInstance(encryptionAlgorithm).generateKey();
 
         
-        assertThrows(NullPointerException.class, () -> {
-            eutil.encrypt(inputData, key);
-        });
+        assertThrows(NullPointerException.class, () -> encryptionUtil.encrypt(inputData, key));
     }
 
     @Test
@@ -51,9 +49,7 @@ public class EncryptionUtilTest {
         SecretKey key = KeyGenerator.getInstance(encryptionAlgorithm).generateKey();
 
         
-        assertThrows(IllegalArgumentException.class, () -> {
-            eutil.encrypt(inputData, key);
-        });
+        assertThrows(IllegalArgumentException.class, () -> encryptionUtil.encrypt(inputData, key));
     }
 
 
@@ -65,9 +61,7 @@ public class EncryptionUtilTest {
         SecretKey key = null;
 
         
-        assertThrows(NullPointerException.class, () -> {
-            eutil.encrypt(inputData, key);
-        });
+        assertThrows(NullPointerException.class, () -> encryptionUtil.encrypt(inputData, key));
     }
 
     @Test
@@ -85,7 +79,7 @@ public class EncryptionUtilTest {
         byte[] encryptedData = cipher.doFinal(originalBytes);
 
         
-        byte[] decryptedData = eutil.decrypt(encryptedData, keySpec);
+        byte[] decryptedData = encryptionUtil.decrypt(encryptedData, keySpec);
 
         
         assertNotNull(decryptedData);
@@ -102,9 +96,7 @@ public class EncryptionUtilTest {
 
 
         
-        assertThrows(NullPointerException.class, () -> {
-            eutil.decrypt(encryptedData, keySpec);
-        });
+        assertThrows(NullPointerException.class, () -> encryptionUtil.decrypt(encryptedData, keySpec));
     }
 
     @Test
@@ -128,9 +120,7 @@ public class EncryptionUtilTest {
 
 
         
-        assertThrows(Exception.class, () -> {
-            eutil.decrypt(encryptedData, incorrectKeySpec);
-        });
+        assertThrows(Exception.class, () -> encryptionUtil.decrypt(encryptedData, incorrectKeySpec));
     }
 
     @Test
@@ -143,8 +133,8 @@ public class EncryptionUtilTest {
         SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), encryptionAlgorithm);
 
         
-        byte[] encryptedData = eutil.encrypt(originalBytes, key);
-        byte[] decryptedData = eutil.decrypt(encryptedData, keySpec);
+        byte[] encryptedData = encryptionUtil.encrypt(originalBytes, key);
+        byte[] decryptedData = encryptionUtil.decrypt(encryptedData, keySpec);
 
         
         assertNotNull(encryptedData);
@@ -160,7 +150,6 @@ public class EncryptionUtilTest {
 
         
         SecretKey correctKey = KeyGenerator.getInstance(encryptionAlgorithm).generateKey();
-        SecretKeySpec correctKeySpec = new SecretKeySpec(correctKey.getEncoded(), encryptionAlgorithm);
 
         
         SecretKey incorrectKey = KeyGenerator.getInstance(encryptionAlgorithm).generateKey();
@@ -168,12 +157,10 @@ public class EncryptionUtilTest {
 
 
         
-        byte[] encryptedData = eutil.encrypt(originalBytes, correctKey);
+        byte[] encryptedData = encryptionUtil.encrypt(originalBytes, correctKey);
 
         
-        assertThrows(Exception.class, () -> {
-            eutil.decrypt(encryptedData, incorrectKeySpec);
-        });
+        assertThrows(Exception.class, () -> encryptionUtil.decrypt(encryptedData, incorrectKeySpec));
     }
 
     @Test
@@ -185,8 +172,8 @@ public class EncryptionUtilTest {
         SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), encryptionAlgorithm);
 
         
-        byte[] encryptedData = eutil.encrypt(emptyData, key);
-        byte[] decryptedData = eutil.decrypt(encryptedData, keySpec);
+        byte[] encryptedData = encryptionUtil.encrypt(emptyData, key);
+        byte[] decryptedData = encryptionUtil.decrypt(encryptedData, keySpec);
 
         
         assertNotNull(encryptedData);
