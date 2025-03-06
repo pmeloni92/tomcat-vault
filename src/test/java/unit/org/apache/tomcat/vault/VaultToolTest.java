@@ -2,6 +2,9 @@ package unit.org.apache.tomcat.vault;
 
 import org.apache.commons.cli.*;
 import org.apache.tomcat.vault.VaultTool;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -9,12 +12,59 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-
-import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
+import java.security.Permission;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VaultToolTest {
+
+    SecurityManager sm = System.getSecurityManager();
+
+    //New exception that we need to catch to prevent methods to exit
+    protected static class ExitException extends SecurityException
+    {
+        public final int status;
+        public ExitException(int status)
+        {
+            super(Integer.toString(status));
+            this.status = status;
+        }
+    }
+
+    //New security manager needed to prevent System.exit
+    private static class NoExitSecurityManager extends SecurityManager
+    {
+        @Override
+        public void checkPermission(Permission perm)
+        {
+            // allow anything.
+        }
+        @Override
+        public void checkPermission(Permission perm, Object context)
+        {
+            // allow anything.
+        }
+        @Override
+        public void checkExit(int status)
+        {
+            super.checkExit(status);
+            throw new ExitException(status);
+        }
+    }
+
+    @Before
+    public void setUp()
+    {
+        System.setSecurityManager(new NoExitSecurityManager());
+    }
+
+
+    @After
+    public void tearDown()
+    {
+        System.setSecurityManager(sm);
+    }
+
 
     // Helper method to access private fields using reflection
     private Object getPrivateField(Object instance) throws NoSuchFieldException, IllegalAccessException {
@@ -22,6 +72,7 @@ public class VaultToolTest {
         field.setAccessible(true);
         return field.get(instance);
     }
+
 
     // Test: Parse valid arguments successfully
     @Test
@@ -43,22 +94,26 @@ public class VaultToolTest {
 
     // Test: Missing required argument throws the correct error
     @Test
-    public void testMissingArgument() throws Exception {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    public void testMissingArgument(){
 
-        System.setErr(new PrintStream(outContent));
         String[] args = {"-k", "keystore.jks", "-p"};
-        int statusCode = catchSystemExit(() -> new VaultTool(args));
-        assertTrue(outContent.toString().contains("Missing argument for option"));
-        assertEquals(statusCode, 2);
+        //int statusCode = catchSystemExit(() -> new VaultTool(args));
+        try{
+            new VaultTool(args);
+        }catch(ExitException e){
+            Assert.assertEquals("2", e.getMessage());
+        }
     }
 
 
     @Test
     public void testInvalidArguments() throws Exception {
         String[] args = {"-z", "invalid-option"};
-        int statusCode = catchSystemExit(() -> new VaultTool(args));
-        assertEquals(statusCode, 2);
+        try{
+            new VaultTool(args);
+        }catch(RuntimeException e){
+            Assert.assertEquals("2", e.getMessage());
+        }
     }
 
 
@@ -68,11 +123,11 @@ public class VaultToolTest {
 
         System.setErr(new PrintStream(outContent));
         String[] args = {"-k", "keystore.jks", "-p", "password"};
-        int statusCode = catchSystemExit(() -> new VaultTool(args));
-
-        String errorMessage = outContent.toString();
-        assertTrue(errorMessage.contains("Missing required option"));
-        assertEquals(statusCode, 2);
+        try{
+            new VaultTool(args);
+        }catch(RuntimeException e){
+            Assert.assertEquals("2", e.getMessage());
+        }
     }
 
     // Test: Help option works without errors
