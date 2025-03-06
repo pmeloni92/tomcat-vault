@@ -85,7 +85,7 @@
                     <execution>
                         <id>bin</id>
                         <goals>
-                            <goal>single</goal>
+                            <goal>attached</goal>
                         </goals>
                         <phase>package</phase>
                         <configuration>
