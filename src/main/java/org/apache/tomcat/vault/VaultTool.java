@@ -23,6 +23,7 @@
 package org.apache.tomcat.vault;
 
 import org.apache.commons.cli.*;
+import org.apache.tomcat.vault.exception.VaultException;
 import org.apache.tomcat.vault.security.vault.SecurityVault;
 import org.apache.tomcat.vault.security.Util;
 
@@ -90,14 +91,21 @@ public class VaultTool {
                 if (!skipSummary) {
                     tool.summary();
                 }
-            } catch (Exception e) {
+
+            } catch(VaultException ve){
+                System.exit(Integer.parseInt(ve.getMessage()));
+            }catch (Exception e) {
                 System.err.println("Problem occurred:");
                 System.err.println(e.getMessage());
                 System.exit(1);
             }
             System.exit(returnVal);
         } else {
-            tool = new VaultTool();
+            try {
+                tool = new VaultTool();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
             Console console = System.console();
 
@@ -141,7 +149,7 @@ public class VaultTool {
 
     }
 
-    public VaultTool(String[] args) {
+    public VaultTool(String[] args) throws VaultException {
         initOptions();
         parser = new PosixParser();
         try {
@@ -153,12 +161,12 @@ public class VaultTool {
                 if (optionSpecified.equals(opt.getLongOpt()) ||
                     optionSpecified.equals(opt.getOpt())) {
                     System.err.println("Missing argument for option: " + optionSpecified);
-                    System.exit(2);
+                    throw new VaultException("2");//System.exit(2);
                 }
             }
         } catch (ParseException e) {
             System.err.println(e.getMessage());
-            System.exit(2);
+            throw new VaultException("2");//System.exit(2);
         }
     }
 
