@@ -26,7 +26,7 @@ public class VaultToolTest {
 
     // Test: Parse valid arguments successfully
     @Test
-    public void testValidArguments() throws NoSuchFieldException, IllegalAccessException, VaultException {
+    public void testValidArguments() throws NoSuchFieldException, IllegalAccessException {
         String[] args = {"-k", "keystore.jks", "-p", "password", "-x", "secure-value"};
         VaultTool vaultTool = new VaultTool(args);
 
@@ -45,12 +45,11 @@ public class VaultToolTest {
     // Test: Missing required argument throws the correct error
     @Test
     public void testMissingArgument(){
-
         String[] args = {"-k", "keystore.jks", "-p"};
         try {
             new VaultTool(args);
         } catch (VaultException e) {
-            Assert.assertEquals("2", e.getMessage());
+            Assert.assertEquals(2, e.getExitCode());
         }
     }
 
@@ -61,7 +60,7 @@ public class VaultToolTest {
         try {
             new VaultTool(args);
         } catch (VaultException e) {
-            Assert.assertEquals("2", e.getMessage());
+            Assert.assertEquals(2, e.getExitCode());
         }
     }
 
@@ -75,7 +74,7 @@ public class VaultToolTest {
         try {
             new VaultTool(args);
         } catch (VaultException e) {
-            Assert.assertEquals("2", e.getMessage());
+            Assert.assertEquals(2, e.getExitCode());
         }
     }
 

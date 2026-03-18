@@ -93,7 +93,7 @@ public class VaultTool {
                 }
 
             } catch(VaultException ve){
-                System.exit(Integer.parseInt(ve.getMessage()));
+                System.exit(ve.getExitCode());
             }catch (Exception e) {
                 System.err.println("Problem occurred:");
                 System.err.println(e.getMessage());
@@ -149,7 +149,7 @@ public class VaultTool {
 
     }
 
-    public VaultTool(String[] args) throws VaultException {
+    public VaultTool(String[] args) {
         initOptions();
         parser = new PosixParser();
         try {
@@ -161,12 +161,12 @@ public class VaultTool {
                 if (optionSpecified.equals(opt.getLongOpt()) ||
                     optionSpecified.equals(opt.getOpt())) {
                     System.err.println("Missing argument for option: " + optionSpecified);
-                    throw new VaultException("2");//System.exit(2);
+                    throw new VaultException("Missing argument for option:" + optionSpecified, 2);//System.exit(2);
                 }
             }
         } catch (ParseException e) {
             System.err.println(e.getMessage());
-            throw new VaultException("2");//System.exit(2);
+            throw new VaultException(e.getMessage(), 2);//System.exit(2);
         }
     }
 
